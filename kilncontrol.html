@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>KilnControl</title>
+</head>
+<body style="background-color:#ffe680;">
+
+<!-- Temperature input -->
+<H3>send live temp</H3>
+<form id="TempForm" method="GET">
+<input name="action" type="hidden" value="LogTemperature" />
+<input type="number" name="temp">
+<br>
+<input type="submit" /></form>
+
+<!-- Note input -->
+<H3>send live note</H3>
+<form id="NoteForm" method="GET">
+<input name="action" type="hidden" value="LogNote" />
+<textarea cols="40" name="note" rows="4" autofocus=""></textarea><br>
+<input type="submit" /></form>
+
+<!-- select schedule -->
+<H3>select schedule</H3>
+<form id="FireForm"  method="GET">
+<input type="hidden" name="action" value="SetSchedule" />
+</form>
+
+<script>
+var host = "https://script.google.com/macros/s/";
+var key = "AKfycbxCtLSviSpneFCtbK97-BkSIIg-g4rwa0pvTuuqhK-LW_uMyww0/exec";
+
+document.getElementById("TempForm").action = host + key;
+document.getElementById("NoteForm").action = host + key;
+document.getElementById("FireForm").action = host + key;
+
+var xhr = new XMLHttpRequest();
+var data = "?action=LoadSchedules";
+var schedule = "";
+xhr.open('GET', host + key + data, true);
+xhr.responseType = 'text';
+xhr.onload = function () {
+    if (xhr.readyState === xhr.DONE) {
+        if (xhr.status === 200) {
+            var arr = xhr.response;
+            //remove all separators at the end of the string
+            while (arr.charAt(arr.length-1) == ",") {
+    		   arr = arr.substring(0,arr.length-1);
+            }
+            //as long as there is a string
+            while (arr != ""){
+              //remove all separators at the front of the string
+              while (arr.charAt(0) == ",") {
+    		    arr = arr.substring(1,arr.length);
+              }
+              // ====extract schedules from string====
+              if (arr.search(",") == -1) {
+    		    schedule = arr;
+                arr = "";
+              } 
+              else {
+                schedule = arr.substring(0,arr.search(","));
+                arr = arr.substring(arr.search(",")+1,arr.length);
+			  }
+            //new line
+            var para = document.createElement("P");
+            var t = document.createTextNode("");
+            para.appendChild(t);
+            document.getElementById("FireForm").appendChild(para);
+           
+            //create radiobutton
+            var x = document.createElement("INPUT");
+            x.setAttribute("type", "radio");
+            x.setAttribute("name", "schedule");
+            x.setAttribute("value", schedule);
+            document.getElementById("FireForm").appendChild(x);
+            //create label
+            var t = document.createTextNode(schedule);
+    		document.getElementById("FireForm").appendChild(t);
+          }
+            
+          //new line
+          var para = document.createElement("P");
+          var t = document.createTextNode("");
+          para.appendChild(t);
+          document.getElementById("FireForm").appendChild(para);
+            
+          //create submitbutton
+          var x = document.createElement("INPUT");
+          x.setAttribute("type", "submit");
+          document.getElementById("FireForm").appendChild(x);
+        }
+    }
+};
+xhr.send(null);
+</script>
+</body>
+</html>
